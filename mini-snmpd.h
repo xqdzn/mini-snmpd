@@ -269,10 +269,17 @@ typedef struct udpinfo_s {
 } udpinfo_t;
 
 #ifdef CONFIG_ENABLE_DEMO
-typedef struct demoinfo_s {
+typedef struct dgosinfo_s {
 	unsigned int random_value_1;
 	unsigned int random_value_2;
-} demoinfo_t;
+	char *g_dgos_string_1;
+	char *g_dgos_string_2;
+	char *g_dgos_string_3;
+	char *g_dgos_string_4;
+	char *g_dgos_string_5;
+	char *g_dgos_string_6;
+	char *g_dgos_string_7;
+} dgosinfo_t;
 #endif
 
 
@@ -361,7 +368,7 @@ void         get_udpinfo        (udpinfo_t *udpinfo);
 void         get_diskinfo       (diskinfo_t *diskinfo);
 void         get_netinfo        (netinfo_t *netinfo);
 #ifdef CONFIG_ENABLE_DEMO
-void         get_demoinfo       (demoinfo_t *demoinfo);
+void         get_dgosinfo       (dgosinfo_t *dgosinfo);
 #endif
 int          logit              (int priority, int syserr, const char *fmt, ...);
 
@@ -375,11 +382,6 @@ int mib_update   (int full);
 value_t *mib_find     (const oid_t *oid, size_t *pos);
 value_t *mib_findnext (const oid_t *oid);
 
-#ifdef CONFIG_ENABLE_ETHTOOL
-int ethtool_gstats(int intf, netinfo_t *netinfo, field_t *field);
-#else
-#define ethtool_gstats(intf, netinfo, field) (-1)
-#endif
 
 #endif /* MINI_SNMPD_H_ */
 

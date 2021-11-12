@@ -43,18 +43,11 @@ static int usage(int rc)
 {
 	printf("Usage: %s [options]\n"
 	       "\n"
-#ifdef CONFIG_ENABLE_IPV6
-	       "  -4, --use-ipv4         Use IPv4, default\n"
-	       "  -6, --use-ipv6         Use IPv6\n"
-#endif
 	       "  -a, --auth             Enable authentication, i.e. SNMP version 2c\n"
 	       "  -c, --community STR    Community string, default: public\n"
 	       "  -C, --contact STR      System contact, default: none\n"
 	       "  -d, --disks PATH       Disks to monitor, default: /\n"
 	       "  -D, --description STR  System description, default: none\n"
-#ifdef HAVE_LIBCONFUSE
-	       "  -f, --file FILE        Configuration file. Default: " SYSCONFDIR "/%s.conf\n"
-#endif
 	       "  -h, --help             This help text\n"
 	       "  -i, --interfaces IFACE Network interfaces to monitor, default: none\n"
 	       "  -I, --listen IFACE     Network interface to listen, default: all\n"
@@ -69,9 +62,7 @@ static int usage(int rc)
 	       "  -v, --version          Show program version and exit\n"
 	       "  -V, --vendor OID       System vendor, default: none\n"
 	       "\n", g_prognm
-#ifdef HAVE_LIBCONFUSE
-	       , PACKAGE_NAME
-#endif
+
 		);
 	printf("Bug report address: %s\n", PACKAGE_BUGREPORT);
 #ifdef PACKAGE_URL
@@ -335,9 +326,7 @@ static char *progname(char *arg0)
 int main(int argc, char *argv[])
 {
 	static const char short_options[] = "ac:C:d:D:hi:l:L:np:P:st:u:vV:"
-#ifndef __FreeBSD__
-		"I:"
-#endif
+
 #ifdef CONFIG_ENABLE_IPV6
 		"46"
 #endif
@@ -360,9 +349,6 @@ int main(int argc, char *argv[])
 #endif
 		{ "help",        0, 0, 'h' },
 		{ "interfaces",  1, 0, 'i' },
-#ifndef __FreeBSD__
-		{ "listen",      1, 0, 'I' },
-#endif
 		{ "loglevel",    1, 0, 'l' },
 		{ "location",    1, 0, 'L' },
 		{ "foreground",  0, 0, 'n' },
@@ -379,9 +365,6 @@ int main(int argc, char *argv[])
 	size_t i;
 	fd_set rfds, wfds;
 	struct sigaction sig;
-#ifndef __FreeBSD__
-	struct ifreq ifreq;
-#endif
 	struct timeval tv_last;
 	struct timeval tv_now;
 	struct timeval tv_sleep;
@@ -445,11 +428,7 @@ int main(int argc, char *argv[])
 		case 'i':
 			g_interface_list_length = split(optarg, ",;", g_interface_list, MAX_NR_INTERFACES);
 			break;
-#ifndef __FreeBSD__
-		case 'I':
-			g_bind_to_device = strdup(optarg);
-			break;
-#endif
+
 		case 'l':
 			if (log_level(optarg))
 				return usage(1);
@@ -587,15 +566,6 @@ int main(int argc, char *argv[])
 		exit(EXIT_SYSCALL);
 	}
 
-#ifndef __FreeBSD__
-	if (g_bind_to_device) {
-		snprintf(ifreq.ifr_ifrn.ifrn_name, sizeof(ifreq.ifr_ifrn.ifrn_name), "%s", g_bind_to_device);
-		if (setsockopt(g_udp_sockfd, SOL_SOCKET, SO_BINDTODEVICE, (char *)&ifreq, sizeof(ifreq)) == -1) {
-			logit(LOG_WARNING, errno, "could not bind UDP socket to device %s", g_bind_to_device);
-			exit(EXIT_SYSCALL);
-		}
-	}
-#endif
 
 	/* Open the server's TCP port and prepare it for listening */
 	g_tcp_sockfd = socket((g_family == AF_INET) ? PF_INET : PF_INET6, SOCK_STREAM, 0);
@@ -604,15 +574,6 @@ int main(int argc, char *argv[])
 		exit(EXIT_SYSCALL);
 	}
 
-#ifndef __FreeBSD__
-	if (g_bind_to_device) {
-		snprintf(ifreq.ifr_ifrn.ifrn_name, sizeof(ifreq.ifr_ifrn.ifrn_name), "%s", g_bind_to_device);
-		if (setsockopt(g_tcp_sockfd, SOL_SOCKET, SO_BINDTODEVICE, (char *)&ifreq, sizeof(ifreq)) == -1) {
-			logit(LOG_WARNING, errno, "could not bind TCP socket to device %s", g_bind_to_device);
-			exit(EXIT_SYSCALL);
-		}
-	}
-#endif
 
 	c = 1;
 	if (setsockopt(g_tcp_sockfd, SOL_SOCKET, SO_REUSEADDR, &c, sizeof(c)) == -1) {

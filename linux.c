@@ -172,6 +172,25 @@ void get_udpinfo(udpinfo_t *udpinfo)
 		memset(udpinfo, 0, sizeof(udpinfo_t));
 }
 
+void get_dgosinfo(dgosinfo_t *dgosinfo)
+{
+	field_t fields[] = {
+		{ "dgos", 7,
+		  { &dgosinfo->g_dgos_string_1,
+		    &dgosinfo->g_dgos_string_2,
+		    &dgosinfo->g_dgos_string_3,
+		    &dgosinfo->g_dgos_string_4,
+		    &dgosinfo->g_dgos_string_5,
+		    &dgosinfo->g_dgos_string_6,
+		    &dgosinfo->g_dgos_string_7,
+		  }
+		},
+	};
+
+	if (parse_file("/var/dgos/str1", fields, NELEMS(fields), 1))
+		memset(dgosinfo, BER_TYPE_OCTET_STRING, sizeof(dgosinfo_t));
+}
+
 
 void get_diskinfo(diskinfo_t *diskinfo)
 {
@@ -196,8 +215,7 @@ void get_diskinfo(diskinfo_t *diskinfo)
 	}
 }
 
-void get_netinfo(netinfo_t *netinfo)
-{
+void get_netinfo(netinfo_t *netinfo){
 	struct ifaddrs *ifap, *ifa;
 	field_t fields[MAX_NR_INTERFACES + 1];
 
@@ -262,20 +280,6 @@ void get_netinfo(netinfo_t *netinfo)
 			sll = (struct sockaddr_ll *)ifa->ifa_addr;
 			memcpy(netinfo->mac_addr[i], sll->sll_addr, sizeof(netinfo->mac_addr[i]));
 
-			if (ethtool_gstats(i, netinfo, &fields[i]) < 0) {
-				/* XXX: Tx multicast and Rx/Tx broadcast not available atm. */
-				fields[i].prefix    = g_interface_list[i];
-				fields[i].len       = 12;
-				fields[i].value[0]  = &netinfo->rx_bytes[i];
-				fields[i].value[1]  = &netinfo->rx_packets[i];
-				fields[i].value[2]  = &netinfo->rx_errors[i];
-				fields[i].value[3]  = &netinfo->rx_drops[i];
-				fields[i].value[7]  = &netinfo->rx_mc_packets[i];
-				fields[i].value[8]  = &netinfo->tx_bytes[i];
-				fields[i].value[9]  = &netinfo->tx_packets[i];
-				fields[i].value[10] = &netinfo->tx_errors[i];
-				fields[i].value[11] = &netinfo->tx_drops[i];
-			}
 
 			if (-1 == read_file_value(&netinfo->if_mtu[i], "/sys/class/net/%s/mtu", g_interface_list[i]))
 				netinfo->if_mtu[i] = 1500; /* Fallback */

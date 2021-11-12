@@ -1053,8 +1053,17 @@ int mib_build(void)
 	 */
 #ifdef CONFIG_ENABLE_DEMO
 	if (!mib_alloc_entry(&m_demo_oid, 1, 0, BER_TYPE_INTEGER) ||
-	    !mib_alloc_entry(&m_demo_oid, 2, 0, BER_TYPE_INTEGER))
+	    !mib_alloc_entry(&m_demo_oid, 2, 0, BER_TYPE_INTEGER) ||
+		!mib_alloc_entry(&m_demo_oid, 3, 0, BER_TYPE_OCTET_STRING) ||
+	    !mib_alloc_entry(&m_demo_oid, 4, 0, BER_TYPE_OCTET_STRING) ||
+	    !mib_alloc_entry(&m_demo_oid, 5, 0, BER_TYPE_OCTET_STRING) ||
+	    !mib_alloc_entry(&m_demo_oid, 6, 0, BER_TYPE_OCTET_STRING) ||
+	    !mib_alloc_entry(&m_demo_oid, 7, 0, BER_TYPE_OCTET_STRING) ||
+	    !mib_alloc_entry(&m_demo_oid, 8, 0, BER_TYPE_OCTET_STRING) ||
+	    !mib_alloc_entry(&m_demo_oid, 9, 0, BER_TYPE_OCTET_STRING) 
+		)
 		return -1;
+	
 #endif
 
 	return 0;
@@ -1073,7 +1082,7 @@ int mib_update(int full)
 		udpinfo_t udpinfo;
 		cpuinfo_t cpuinfo;
 #ifdef CONFIG_ENABLE_DEMO
-		demoinfo_t demoinfo;
+		dgosinfo_t dgosinfo;
 #endif
 	} u;
 	netinfo_t netinfo;
@@ -1326,19 +1335,6 @@ int mib_update(int full)
 					return -1;
 			}
 
-#if 0 // Not yet supported
-			for (i = 0; i < g_interface_list_length; i++) {
-				int ifConnectorPresent = netinfo.is_port[i] ? 1 : 2; /* XXX: Add support for ethtool on Linux */
-
-				if (update_int(&m_ifxtable_oid, 17, i + 1, &pos, ifConnectorPresent) == -1)
-					return -1;
-			}
-
-			for (i = 0; i < g_interface_list_length; i++) {
-				if (update_tm(&m_ifxtable_oid, 19, i + 1, &pos, netinfo.discont_time[i]) == -1)
-					return -1;
-			}
-#endif
 		}
 	}
 
@@ -1431,10 +1427,16 @@ int mib_update(int full)
 	 */
 #ifdef CONFIG_ENABLE_DEMO
 	if (full) {
-		get_demoinfo(&u.demoinfo);
-		if (update_int(&m_demo_oid, 1, 0, &pos, u.demoinfo.random_value_1) == -1 ||
-		    update_int(&m_demo_oid, 2, 0, &pos, u.demoinfo.random_value_2) == -1)
-			return -1;
+		get_dgosinfo(&u.dgosinfo);
+		if (update_str(&m_demo_oid, 1, 0, &pos, u.dgosinfo.g_dgos_string_1) == -1 ||
+		    update_str(&m_demo_oid, 2, 0, &pos, u.dgosinfo.g_dgos_string_2) == -1 ||
+		    update_str(&m_demo_oid, 3, 0, &pos, u.dgosinfo.g_dgos_string_3) == -1 ||
+		    update_str(&m_demo_oid, 4, 0, &pos, u.dgosinfo.g_dgos_string_4) == -1 ||
+		    update_str(&m_demo_oid, 5, 0, &pos, u.dgosinfo.g_dgos_string_5) == -1 ||
+		    update_str(&m_demo_oid, 6, 0, &pos, u.dgosinfo.g_dgos_string_6) == -1 ||
+		    update_str(&m_demo_oid, 7, 0, &pos, u.dgosinfo.g_dgos_string_7) == -1 
+		)
+		return -1;
 	}
 #endif
 

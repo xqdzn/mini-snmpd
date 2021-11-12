@@ -89,6 +89,7 @@ static inline int parse_lineint(char *buf, field_t *f, size_t *skip_prefix)
 	return 1;
 }
 
+
 int parse_file(char *file, field_t fields[], size_t limit, size_t skip_prefix)
 {
 	char buf[512];
@@ -413,20 +414,25 @@ int find_ifname(char *ifname)
 	return -1;
 }
 
-#ifdef CONFIG_ENABLE_DEMO
-void get_demoinfo(demoinfo_t *demoinfo)
-{
-	static int did_init = 0;
+// #ifdef CONFIG_ENABLE_DEMO
+// void get_dgosinfo(dgosinfo_t *dgosinfo)
+// {
+// 	static int did_init = 0;
 
-	if (did_init == 0) {
-		srand(time(NULL));
-		did_init = 1;
-	}
+// 	if (did_init == 0) {
+// 		srand(time(NULL));
+// 		did_init = 1;
+// 	}
 
-	demoinfo->random_value_1 = rand();
-	demoinfo->random_value_2 = rand();
-}
-#endif
+// 	dgosinfo->g_dgos_string_1 = "string 1";
+// 	dgosinfo->g_dgos_string_2 = "string 2";
+// 	dgosinfo->g_dgos_string_3 = "string 3";
+// 	dgosinfo->g_dgos_string_4 = "string 4";
+// 	dgosinfo->g_dgos_string_5 = "string 5";
+// 	dgosinfo->g_dgos_string_6 = "string 6";
+// 	dgosinfo->g_dgos_string_7 = "string 7";
+// }
+// #endif
 
 int logit(int priority, int syserr, const char *fmt, ...)
 {
